@@ -22,8 +22,7 @@ type AnyStorage struct {
 }
 
 // NewAnyStorage creates a new storage
-func NewAnyStorage() *AnyStorage {
-	logger := logging.NewLogrusLoggerWithStdout("repository.AnyStorage", logging.Debug)
+func NewAnyStorage(logger logging.Logger) *AnyStorage {
 	logger.Debug("creating any storage repository", logging.Fields{"method": "NewAnyStorage"})
 	return &AnyStorage{
 		client: dblibrary{},

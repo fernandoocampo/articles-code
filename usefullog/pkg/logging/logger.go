@@ -1,5 +1,7 @@
 package logging
 
+import "io"
+
 // Fields define fields type to add in logs.
 type Fields map[string]interface{}
 
@@ -27,12 +29,12 @@ const (
 	Error
 )
 
-// LoggerType log mechanism to use in the application.
-type LoggerType int
+// Type log mechanism to use in the application.
+type Type int
 
 const (
 	// Basic is the logger that uses native logger.
-	Basic LoggerType = 1 << iota
+	Basic Type = 1 << iota
 	// Logrus is the logger that uses logrus logger.
 	Logrus
 )
@@ -52,13 +54,25 @@ type Logger interface {
 	Error(message string, fields Fields)
 }
 
-// New creates a new logger
-func New(selectedLogger LoggerType, artifactName string, level Level) Logger {
+// New creates a new logger with standard output.
+func New(selectedLogger Type, artifactName string, level Level) Logger {
 	switch selectedLogger {
 	case Basic:
 		return NewBasicLoggerWithStdout(artifactName, level)
 	case Logrus:
 		return NewLogrusLoggerWithStdout(artifactName, level)
+	default:
+		return NewBasicLoggerWithStdout(artifactName, level)
+	}
+}
+
+// NewWithWriter creates a new logger with the given output mechanism.
+func NewWithWriter(selectedLogger Type, artifactName string, level Level, writer io.Writer) Logger {
+	switch selectedLogger {
+	case Basic:
+		return NewBasicLogger(artifactName, level, writer)
+	case Logrus:
+		return NewLogrusLogger(artifactName, level, writer)
 	default:
 		return NewBasicLoggerWithStdout(artifactName, level)
 	}

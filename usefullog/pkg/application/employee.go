@@ -6,6 +6,7 @@ import (
 	"github.com/fernandoocampo/articles-code/usefullog/pkg/domain"
 	"github.com/fernandoocampo/articles-code/usefullog/pkg/logging"
 	"github.com/google/uuid"
+	"github.com/pkg/errors"
 )
 
 // EmployeeService defines basic logic to store employee data.
@@ -15,8 +16,7 @@ type EmployeeService struct {
 }
 
 // NewEmployeeService creates a new EmployeeService instance.
-func NewEmployeeService(repository Repository) *EmployeeService {
-	logger := logging.NewLogrusLoggerWithStdout("application.EmployeeService", logging.Debug)
+func NewEmployeeService(repository Repository, logger logging.Logger) *EmployeeService {
 	logger.Debug("creating employee service", logging.Fields{"method": "NewEmployeeService"})
 	return &EmployeeService{
 		logger:     logger,
@@ -30,15 +30,7 @@ func (e *EmployeeService) Create(ctx context.Context, newEmployee domain.NewEmpl
 	e.logger.Debug("creating employee", logging.Fields{"method": "Create", "new employee": newEmployee})
 	validationError := newEmployee.Validate()
 	if validationError != nil {
-		e.logger.Error(
-			"new employee is not valid",
-			logging.Fields{
-				"method":       "Create",
-				"error":        validationError,
-				"new employee": newEmployee,
-			},
-		)
-		return "", validationError
+		return "", errors.Wrap(validationError, "the data of the new employee is not valid")
 	}
 	newEmployeeID := uuid.New().String()
 	e.logger.Debug("new employee id is generated", logging.Fields{"method": "Create", "id": newEmployeeID})
@@ -54,7 +46,7 @@ func (e *EmployeeService) Create(ctx context.Context, newEmployee domain.NewEmpl
 				"employee": employee,
 			},
 		)
-		return "", err
+		return "", errors.New("employee cannot be stored")
 	}
 	return newEmployeeID, nil
 }

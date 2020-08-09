@@ -1,5 +1,7 @@
 package domain
 
+import "errors"
+
 // NewEmployee contains structured data of a new employee.
 type NewEmployee struct {
 	FirstName string
@@ -27,5 +29,8 @@ func (n NewEmployee) ToEmployee(id string) Employee {
 
 // Validate verifies that the new employee contains valid data.
 func (n NewEmployee) Validate() error {
+	if n.Email == "" {
+		return errors.New("email is mandatory")
+	}
 	return nil
 }

@@ -14,8 +14,10 @@ func main() {
 	logger := logging.New(logging.Logrus, "usefullog.main", logging.Debug)
 	logger.Info("starting usefullog application", nil)
 
-	repository := repository.NewAnyStorage()
-	service := application.NewEmployeeService(repository)
+	repositoryLogger := logging.New(logging.Logrus, "repository.AnyStorage", logging.Debug)
+	repository := repository.NewAnyStorage(repositoryLogger)
+	employeeLogger := logging.New(logging.Logrus, "application.EmployeeService", logging.Debug)
+	service := application.NewEmployeeService(repository, employeeLogger)
 
 	newEmployee := domain.NewEmployee{
 		FirstName: "Fernando",
